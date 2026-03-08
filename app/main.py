@@ -3,6 +3,7 @@ import json
 from collections.abc import AsyncGenerator
 
 from fastapi import Depends, FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 
 from .agent_controller import build_agent_plan
@@ -36,6 +37,15 @@ from .repositories import (
 from .schemas import ChatRequest, MemoryOut, MessageOut
 
 app = FastAPI(title="AI Assistant Platform Backend", version="1.0.0")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 hf_client = HFSpaceClient()
 
 
@@ -149,6 +159,7 @@ async def chat(
 @app.get("/history/{user_id}", response_model=list[MessageOut])
 async def get_history(
     user_id: str,
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     if current_user.id != user_id:
         raise HTTPException(status_code=403, detail="You can only access your own history")
