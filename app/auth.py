@@ -14,10 +14,12 @@ class CurrentUser:
 
 
 async def get_current_user(authorization: str | None = Header(default=None)) -> CurrentUser:
-    if settings.allow_anon_chat:
-        return CurrentUser(id="anon-user", email="anon@example.com", name="Anonymous")
+    # If a real bearer token is present, always validate it (even if anon is allowed)
+    has_token = authorization and authorization.lower().startswith("bearer ")
 
-    if not authorization or not authorization.lower().startswith("bearer "):
+    if not has_token:
+        if settings.allow_anon_chat:
+            return CurrentUser(id="anon-user", email="anon@example.com", name="Anonymous")
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing bearer token")
 
     if not settings.supabase_url or not settings.supabase_anon_key:

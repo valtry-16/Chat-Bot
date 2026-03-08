@@ -9,7 +9,7 @@ class Settings(BaseSettings):
 
     hf_space_url: str = "https://your-space-name.hf.space"
     hf_generate_path: str = "/generate_stream"
-    hf_timeout_seconds: int = 120
+    hf_timeout_seconds: int = 180
 
     supabase_url: str = ""
     supabase_anon_key: str = ""
